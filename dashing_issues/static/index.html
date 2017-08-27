@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Open Issues</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+        <script src="https://unpkg.com/vue"></script>
+    </head>
+    <body>
+        <div class="container-fluid">
+            <h1 class="display-3">Open Issues</h1>
+
+            <div class="card-columns" id="repositories">
+                <div class="card w-75" v-for="repo in repos" v-if="repo.issues.length != 0">
+                    <div class="card-header">
+                        <a v-bind:href="repo.url">{{ repo.name }}</a>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        <a class="list-group-item list-group-item-action" v-for="issue in repo.issues" v-bind:href="issue.url">
+                            [#{{ issue.number }}] {{ issue.title }}
+                            <div class="float-right" v-if="issue.labels.length != 0">
+                                <span class="badge badge-secondary" v-for="label in issue.labels" v-bind:title="label.name" v-bind:style="{ backgroundColor: '#' + label.color }">
+                                    {{ label.name[0] }}
+                                    <span class="sr-only">{{ label.name.slice(1) }}</span>
+                                </span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            new Vue({
+                el: '#repositories',
+                data: {
+                    repos: []
+                },
+                mounted: function() {
+                    var self = this;
+                    fetch('/repositories', {mode: 'cors'}).then(function(response) {
+                        return response.json();
+                    }).then(function(owners) {
+                        for (owner in owners) {
+                            repositories = owners[owner]['repositories'];
+                            for (i = 0; i < repositories.length; i++) {
+                                fetch(repositories[i]['url'], {mode: 'cors'}).then(function(response) {
+                                    return response.json();
+                                }).then(function(repository) {
+                                    self.repos.push(repository);
+                                })
+                            }
+                        }
+                    })
+                }
+            })
+        </script>
+    </body>
+</html>

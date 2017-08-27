@@ -1,0 +1,3 @@
+CACHE_TYPE = 'simple'
+GITHUB_TOKEN = ''
+REPOSITORIES = {}

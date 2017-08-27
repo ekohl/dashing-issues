@@ -1,0 +1,11 @@
+CACHE_TYPE = 'memcached'
+GITHUB_TOKEN = 'MY PRIVATE GITHUB TOKEN'
+REPOSITORIES = {
+        'owner1': [
+            'repo1',
+            'repo2',
+        ],
+        'owner2': [
+            'repo3',
+        ],
+}
