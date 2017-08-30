@@ -8,48 +8,108 @@
         <script src="/static/js/vue-2.4.2.min.js" integrity="sha384-jW6mxnPgQwOiqHOfJHLmKLmavGcrBcy/y4P5YSBSHTlQrSsbxBMPhNtAN91zNxb3" crossorigin="anonymous"></script>
     </head>
     <body>
-        <div class="container-fluid">
+        <div class="container-fluid" id="container">
+            <div class="float-right">
+                <label class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" v-model="showWip">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Show WIP</span>
+                </label>
+                <label class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input" v-model="showWaitingOnContributor">
+                    <span class="custom-control-indicator"></span>
+                    <span class="custom-control-description">Show WoC</span>
+                </label>
+            </div>
+
             <h1 class="display-3">Open Issues</h1>
 
-            <div class="card-columns" id="repositories">
-                <div class="card w-100" v-for="repo in repos" v-if="repo.issues.length != 0">
-                    <div class="card-header">
-                        <a v-bind:href="repo.url">{{ repo.name }}</a>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        <a class="list-group-item list-group-item-action" v-for="issue in repo.issues" v-bind:href="issue.url">
-                            [#{{ issue.number }}] {{ issue.title }}
-                            <div class="float-right" v-if="issue.labels.length != 0">
-                                <span class="badge badge-secondary" v-for="label in issue.labels" v-bind:title="label.name" v-bind:style="{ backgroundColor: '#' + label.color }">
-                                    {{ label.name[0] }}
-                                    <span class="sr-only">{{ label.name.slice(1) }}</span>
-                                </span>
-                            </div>
-                        </a>
-                    </div>
-                </div>
+            <div class="card-columns">
+                <repository
+                    v-for="repo in repos"
+                    v-bind:repo="repo"
+                    v-bind:show-wip="showWip"
+                    v-bind:show-waiting-on-contributor="showWaitingOnContributor"
+                    v-bind:key="repo.url">
+                </repository>
             </div>
         </div>
 
         <script>
+            Vue.component('repository', {
+                props: ['repo', 'showWip', 'showWaitingOnContributor'],
+                computed: {
+                    visibleIssues: function() {
+                        var issues = this.repo.issues;
+                        if (!this.showWip) {
+                            issues = issues.filter(issue => !issue.title.includes('[WIP]'));
+                        }
+                        if (!this.showWaitingOnContributor) {
+                            issues = issues.filter(issue => issue.labels.filter(label => label.name == "Waiting on contributor").length == 0);
+                        }
+                        return issues;
+                    }
+                },
+                template: `
+                    <div class="card w-100" v-if="visibleIssues.length != 0">
+                        <div class="card-header">
+                            <a v-bind:href="repo.url">{{ repo.name }}</a>
+                        </div>
+                        <div class="list-group list-group-flush">
+                            <issue
+                                v-for="issue in visibleIssues"
+                                v-bind:issue="issue"
+                                v-bind:key="issue.url">
+                            </issue>
+                        </div>
+                    </div>
+                `
+            })
+
+            Vue.component('issue', {
+                props: ['issue'],
+                template: `
+                    <a class="list-group-item list-group-item-action" v-bind:href="issue.url">
+                        [#{{ issue.number }}] {{ issue.title }}
+                        <div class="float-right" v-if="issue.labels.length != 0">
+                            <issue-label
+                                v-for="label in issue.labels"
+                                v-bind:label="label"
+                                v-bind:key="label.name">
+                            </issue-label>
+                        </div>
+                    </a>
+                `
+            })
+
+            Vue.component('issue-label', {
+                props: ['label'],
+                template: `
+                    <span class="badge badge-secondary" v-bind:title="label.name" v-bind:style="{ backgroundColor: '#' + label.color }">
+                        {{ label.name[0] }}
+                        <span class="sr-only">{{ label.name.slice(1) }}</span>
+                    </span>
+                `
+            })
+
             new Vue({
-                el: '#repositories',
+                el: '#container',
                 data: {
-                    repos: []
+                    repos: [],
+                    showWip: false,
+                    showWaitingOnContributor: false
                 },
                 mounted: function() {
                     var self = this;
-                    fetch('/repositories', {mode: 'cors'}).then(function(response) {
-                        return response.json();
-                    }).then(function(owners) {
+                    fetch('/repositories', {mode: 'cors'}).
+                        then(response => response.json()).
+                        then(owners => {
                         for (owner in owners) {
-                            repositories = owners[owner]['repositories'];
+                            var repositories = owners[owner]['repositories'];
                             for (i = 0; i < repositories.length; i++) {
-                                fetch(repositories[i]['url'], {mode: 'cors'}).then(function(response) {
-                                    return response.json();
-                                }).then(function(repository) {
-                                    self.repos.push(repository);
-                                })
+                                fetch(repositories[i]['url'], {mode: 'cors'}).
+                                    then(response => response.json()).
+                                    then(repository => self.repos.push(repository));
                             }
                         }
                     })
