@@ -56,7 +56,7 @@ query GetIssues($owner: String!, $repository: String!) {
 """
 
 
-@cache.memoize(3600)
+@cache.memoize(app.config['CACHE_TTL'])
 def load_repo(owner, repository):
     data = {
             'query': GITHUB_ISSUES_QUERY,

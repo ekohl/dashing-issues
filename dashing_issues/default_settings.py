@@ -1,3 +1,4 @@
 CACHE_TYPE = 'simple'
+CACHE_TTL = 500
 GITHUB_TOKEN = ''
 REPOSITORIES = {}
