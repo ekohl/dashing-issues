@@ -1,4 +1,6 @@
-CACHE_TYPE = 'memcached'
+# See https://pythonhosted.org/Flask-Cache/#configuring-flask-cache for the types
+CACHE_TYPE = 'memcached'  # Defaults to null
+CACHE_TTL = 600  # Defaults to 500
 GITHUB_TOKEN = 'MY PRIVATE GITHUB TOKEN'
 REPOSITORIES = {
         'owner1': [
