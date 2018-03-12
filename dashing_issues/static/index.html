@@ -36,13 +36,17 @@
         </div>
 
         <script>
+            function isWip(issue) {
+                return issue.title.includes('[WIP]') || issue.title.includes('WIP:');
+            }
+
             Vue.component('repository', {
                 props: ['repo', 'showWip', 'showWaitingOnContributor'],
                 computed: {
                     visibleIssues: function() {
                         var issues = this.repo.issues;
                         if (!this.showWip) {
-                            issues = issues.filter(issue => !issue.title.includes('[WIP]'));
+                            issues = issues.filter(issue => !isWip(issue));
                         }
                         if (!this.showWaitingOnContributor) {
                             issues = issues.filter(issue => issue.labels.filter(label => label.name == "Waiting on contributor").length == 0);
