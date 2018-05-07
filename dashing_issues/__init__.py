@@ -1,6 +1,6 @@
 import requests
 from flask import Flask, jsonify, url_for
-from flask_cache import Cache
+from flask_caching import Cache
 from flask_cors import CORS
 
 app = Flask(__name__)

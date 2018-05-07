@@ -7,5 +7,5 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
-    install_requires=['Flask', 'Flask_Cache', 'Flask_Cors', 'requests']
+    install_requires=['Flask', 'Flask-Caching', 'Flask_Cors', 'requests']
 )
