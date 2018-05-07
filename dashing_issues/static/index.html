@@ -10,16 +10,18 @@
     <body>
         <div class="container-fluid" id="container">
             <div class="float-right">
-                <label class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" v-model="showWip">
-                    <span class="custom-control-indicator"></span>
-                    <span class="custom-control-description">Show WIP</span>
-                </label>
-                <label class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" v-model="showWaitingOnContributor">
-                    <span class="custom-control-indicator"></span>
-                    <span class="custom-control-description">Show WoC</span>
-                </label>
+                <div class="form-check">
+                    <input class="form-check-input" id="show-wip" type="checkbox" v-model="showWip">
+                    <label class="form-check-label" for="show-wip">
+                        Show WIP
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" id="show-woc" type="checkbox" v-model="showWaitingOnContributor">
+                    <label class="form-check-label" for="show-woc">
+                        Show WoC
+                    </label>
+                </div>
             </div>
 
             <h1 class="display-3">Open Issues</h1>
