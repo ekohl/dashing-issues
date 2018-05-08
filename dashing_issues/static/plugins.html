@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Foreman Plugins</title>
+        <link rel="stylesheet" href="/static/css/bootstrap-4.1.1.min.css" integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+        <script src="/static/js/vue-2.4.2.min.js" integrity="sha384-jW6mxnPgQwOiqHOfJHLmKLmavGcrBcy/y4P5YSBSHTlQrSsbxBMPhNtAN91zNxb3" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <div class="container-fluid" id="container">
+            <h1 class="display-3">Foreman Plugins</h1>
+            <plugins v-bind:plugins="plugins" v-bind:releases="releases"></plugins>
+        </div>
+
+        <script>
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            Vue.component('plugins', {
+                props: ['plugins', 'releases'],
+                template: `
+                    <table class="table table-striped table-hover" id="container">
+                        <thead>
+                            <tr>
+                                <th scope="col">Name</th>
+                                <th scope="col" v-for="release in releases">{{ capitalizeFirstLetter(release) }}</th>
+                                <th scope="col">Rubygems</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <plugin
+                                v-for="plugin in plugins"
+                                v-bind:name="plugin.name"
+                                v-bind:url="plugin.url"
+                                v-bind:versions="plugin.versions"
+                                v-bind:releases="releases"
+                                v-bind:key="plugin.name">
+                            </plugin>
+                        </tbody>
+                    </table>
+                `
+            });
+
+            Vue.component('plugin', {
+                props: ['name', 'url', 'versions', 'releases'],
+                template: `
+                    <tr>
+                        <td><a v-bind:href="url">{{ name }}</a></td>
+                        <td v-for="release in releases">{{ versions[release] }}</td>
+                        <td></td>
+                    </tr>
+                `
+            });
+
+            new Vue({
+                el: '#container',
+                data: {
+                    releases: ['1.15', '1.16', '1.17', 'nightly'],
+                    plugins: []
+                },
+                mounted: function() {
+                    var self = this;
+                    fetch('/plugins', {mode: 'cors'}).
+                        then(response => response.json()).
+                        then(plugins => {
+                            for (var i = 0; i < plugins.length; i++) {
+                                self.plugins.push(plugins[i]);
+                            }
+                        })
+                        //for (owner in owners) {
+                        //    var repositories = owners[owner]['repositories'];
+                        //    for (i = 0; i < repositories.length; i++) {
+                        //        fetch(repositories[i]['url'], {mode: 'cors'}).
+                        //            then(response => response.json()).
+                        //            then(repository => self.repos.push(repository));
+                        //    }
+                        //}
+                }
+            })
+        </script>
+    </body>
+</html>
