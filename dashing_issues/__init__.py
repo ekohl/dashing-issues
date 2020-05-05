@@ -1,12 +1,12 @@
 import requests
 from flask import Flask, jsonify, url_for
-from flask_caching import Cache
+from flask.ext.cache import Cache
 from flask_cors import CORS
 
 app = Flask(__name__)
 app.config.from_object('dashing_issues.default_settings')
 app.config.from_envvar('SETTINGS')
-cache = Cache(app)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 CORS(app)
 
 session = requests.Session()
